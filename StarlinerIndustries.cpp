@@ -105,11 +105,10 @@ void StarlinerIndustries::addEdge(std::string v1, std::string v2, int weight){
 					av.v = &vertices[j];
 					av.weight = weight;
 					vertices[i].adj.push_back(av);
-					//another vertex for edge in other direction
-					//adjVertex av2;
-					//av2.v = &vertices[i];
-					//av2.weight = weight;
-					//vertices[j].adj.push_back(av2);
+					adjVertex av2;
+					av2.v = &vertices[i];
+					av2.weight = weight;
+					vertices[j].adj.push_back(av2);
 				}
 			}
 		}
@@ -287,23 +286,13 @@ void StarlinerIndustries::build(std::string filename){
 	std::ifstream myfile(filename);
 	if(myfile.is_open()){
 		while(std::getline(myfile,newName,',')){ //keep reading until end of file
-			if(root==NULL){ //create first node in tree
-				std::getline(myfile,nF,',');
-				std::getline(myfile,nC,',');
-				std::getline(myfile,nQ,'\n');
-				newFuel = std::stoi(nF);
-				newCapacity = std::stoi(nC);
-				newQuantity = std::stoi(nQ);
-				root = insertRecursive(NULL,NULL,newName,newFuel,newCapacity,newQuantity); //pass root = null to specify new tree
-			}else{ //create all other nodes
-				std::getline(myfile,nF,',');
-				std::getline(myfile,nC,',');
-				std::getline(myfile,nQ,'\n');
-				newFuel = std::stoi(nF);
-				newCapacity = std::stoi(nC);
-				newQuantity = std::stoi(nQ);
-				insertRecursive(NULL,root,newName,newFuel,newCapacity,newQuantity); //create new node using root of tree and parsed values
-			}
+			std::getline(myfile,nF,',');
+			std::getline(myfile,nC,',');
+			std::getline(myfile,nQ,'\n');
+			newFuel = std::stoi(nF);
+			newCapacity = std::stoi(nC);
+			newQuantity = std::stoi(nQ);
+			root = insertRecursive(NULL,root,newName,newFuel,newCapacity,newQuantity); //pass root = null to specify new tree
 		}
 	myfile.close();
 	}else std::cout<<"Unable to open file"<<std::endl;
@@ -333,9 +322,9 @@ Rocket* StarlinerIndustries::minRecursive(Rocket *startRocket){
 //user accessible recursive delete function.
 void StarlinerIndustries::deleteRocket(std::string deleteName){
 	Rocket *deleted = searchRecursive(root, deleteName);
-	if(deleted==NULL){ //check if rocket exists
+	if(deleted==NULL){
 		std::cout<<"Rocket not found."<<std::endl;
-	}else{ //only attempt to delete if movie does exist.
+	}else{
 		deleted = deleteRecursive(root, deleteName);
 	}
 }
@@ -356,10 +345,12 @@ Rocket* StarlinerIndustries::deleteRecursive(Rocket *startRocket, std::string de
 		}else if(startRocket->left==NULL){ //1 child on right //middle case: determine if has left or right child, then shift child up appropriately before deleting node. 
 			Rocket *tmp = startRocket;
 			startRocket = startRocket->right;
+			startRocket->parent = tmp->parent;
 			delete tmp;
 		}else if(startRocket->right==NULL){ //1 child on left
 			Rocket *tmp = startRocket;
 			startRocket = startRocket->left;
+			startRocket->parent = tmp->parent;
 			delete tmp;
 		}else{ //2 children
 			Rocket *tmp = minRecursive(startRocket->right); //most difficult case: find the minimum right value in the tree
@@ -401,6 +392,9 @@ void StarlinerIndustries::search(std::string searchName){
 
 //non user accessible recursive delete ALL function.
 void StarlinerIndustries::deleteAllRecursive(Rocket *startRocket){
+	if(startRocket == NULL){
+		return;
+	}
 	if(startRocket->left!=NULL){ //delete all nodes using postorder traversal
 		deleteAllRecursive(startRocket->left);
 	}
@@ -421,7 +415,35 @@ int main(int argc, char *argv[]){ //allows text file to be passed from the comma
 	std::string filename  = std::string(argv[1]);
 	StarlinerIndustries myStarlinerIndustries;
 	myStarlinerIndustries.build(filename);
+	myStarlinerIndustries.addVertex("Earth");
+	myStarlinerIndustries.addVertex("Moon");
+	myStarlinerIndustries.addVertex("Mercury");
+	myStarlinerIndustries.addVertex("Venus");
+	myStarlinerIndustries.addVertex("Mars");
+	myStarlinerIndustries.addVertex("Jupiter");
+	myStarlinerIndustries.addVertex("Saturn");
+	myStarlinerIndustries.addVertex("Uranus");
+	myStarlinerIndustries.addVertex("Neptune");
+	myStarlinerIndustries.addEdge("Earth","Moon",2);
+	myStarlinerIndustries.addEdge("Earth","Mercury",10);
+	myStarlinerIndustries.addEdge("Earth","Venus",3);
+	myStarlinerIndustries.addEdge("Moon","Uranus",10);
+	myStarlinerIndustries.addEdge("Moon","Saturn",5);
+	myStarlinerIndustries.addEdge("Moon","Mercury",2);
+	myStarlinerIndustries.addEdge("Mercury","Mars",4);
+	myStarlinerIndustries.addEdge("Mercury","Jupiter",8);
+	myStarlinerIndustries.addEdge("Uranus","Neptune",3);
+	myStarlinerIndustries.addEdge("Saturn","Uranus",2);
+	myStarlinerIndustries.addEdge("Saturn","Mars",2);
+	myStarlinerIndustries.addEdge("Mars","Jupiter",2);
+	myStarlinerIndustries.addEdge("Venus","Jupiter",4);
+	myStarlinerIndustries.addEdge("Jupiter","Neptune",7);
+	myStarlinerIndustries.addEdge("Neptune","Mars",5);
+	myStarlinerIndustries.addEdge("Moon","Uranus",10);
+	myStarlinerIndustries.addEdge("Venus","Mercury",1);
 	while(true){ //Display menu
+		int newFuel;
+		bool exists = false;
 		std::string choice, searchName, rentName, deleteName;
 		std::cout << "======Main Menu======" << std::endl;
 		std::cout << "1. Find a rocket" << std::endl;
@@ -429,7 +451,9 @@ int main(int argc, char *argv[]){ //allows text file to be passed from the comma
 		std::cout << "3. Print the inventory" << std::endl;
 		std::cout << "4. Delete a rocket" << std::endl;
 		std::cout << "5. Count the rockets" << std::endl;
-		std::cout << "6. Quit" << std::endl;
+		std::cout << "6. View map" << std::endl;
+		std::cout << "7. Add destination" << std::endl;
+		std::cout << "8. Quit" << std::endl;
 		std::getline(std::cin,choice);
 
 		if(choice=="1"){ //Find a movie
@@ -437,7 +461,7 @@ int main(int argc, char *argv[]){ //allows text file to be passed from the comma
 			std::getline(std::cin,searchName);
 			myStarlinerIndustries.search(searchName);
 		}
-		else if(choice=="2"){ //Rent a movie
+		else if(choice=="2"){ //Rent a rocket
 			std::cout<<"Enter name:"<<std::endl;
 			std::getline(std::cin,rentName);
 			myStarlinerIndustries.rent(rentName);
@@ -445,13 +469,54 @@ int main(int argc, char *argv[]){ //allows text file to be passed from the comma
 		else if(choice=="3"){ //Print the inventory
 			myStarlinerIndustries.print();
 		}
-		else if(choice=="4"){ //Delete a movie
+		else if(choice=="4"){ //Delete a rocket
 			std::cout<<"Enter name:"<<std::endl;
 			std::getline(std::cin,deleteName);
 			myStarlinerIndustries.deleteRocket(deleteName);
 		}
-		else if(choice=="5"){ //Count the movies
+		else if(choice=="5"){ //Count the rockets
 			std::cout<<"Tree contains: "<<myStarlinerIndustries.countTree()<<" rockets."<<std::endl;
+		}
+		else if(choice=="6"){ //View map
+			myStarlinerIndustries.displayEdges();
+		}
+		else if(choice=="7"){
+			std::cout<<"Enter the name of the new planet:"<<std::endl;
+			std::getline(std::cin,searchName);
+			for(int i = 0; i<vertices.size();i++){
+				if(vertices[i].name == searchName){
+					std::cout<<"This destination already exists."<<std::endl;
+					exists = true;
+					break;
+				}
+			}
+			if(!exists){
+				myStarlinerIndustries.addVertex(searchName);
+				while(true){
+					std::cout<<"Enter the name of planet adjacent to the new planet:"<<std::endl;
+					std::cout<<"(Enter <DONE> if there are no more planets adjacent to the new planet)"<<std::endl;
+					std::getline(std::cin,rentName);
+					if(rentName == "DONE"){
+						break;
+					}else{
+						for(int i = 0; i<vertices.size();i++){
+							if(vertices[i].name == rentName){
+								exists = true;
+								break;
+							}
+						}
+						if(!exists){
+							std::cout<<"This planet does not exist."
+						}else{
+							std::cout<<"Enter the fuel needed to travel between these two planets:"<<std::endl;
+							std::getline(std::cin,deleteName);
+							newFuel = std::stoi(deleteName);
+							myStarlinerIndustries.addEdge(searchName,rentName,newFuel);
+							std::cout<<"New destination added"<<std::endl;
+						}
+					}
+				}
+			}
 		}
 		else{ //Quit
 			std::cout<<"Goodbye!"<<std::endl;
