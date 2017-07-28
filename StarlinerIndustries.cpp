@@ -9,8 +9,8 @@
 #include <string>
 #include <stdlib.h>
 #include <fstream>
-#include <vector>
 #include <climits>
+#include <vector>
 #include "StarlinerIndustries.hpp"
 
 StarlinerIndustries::StarlinerIndustries(){
