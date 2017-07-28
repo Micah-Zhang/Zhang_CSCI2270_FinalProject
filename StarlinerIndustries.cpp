@@ -315,10 +315,10 @@ Rocket* StarlinerIndustries::fuelInsertRecursive(Rocket *tparent, Rocket *troot,
 		troot = new Rocket(newName,newFuel,newCapacity,newQuantity,tparent,NULL,NULL);
 	}
 	else if(newFuel < troot->fuel){ //if newName is alphabetically smaller than current name, traverse left
-		troot->left=insertRecursive(troot,troot->left,newName,newFuel,newCapacity,newQuantity);
+		troot->left=fuelInsertRecursive(troot,troot->left,newName,newFuel,newCapacity,newQuantity);
 	}
 	else{ //if newName is alphabetically larger than the current name, traverse right
-		troot->right=insertRecursive(troot,troot->right,newName,newFuel,newCapacity,newQuantity);
+		troot->right=fuelInsertRecursive(troot,troot->right,newName,newFuel,newCapacity,newQuantity);
 	}
 	return troot; //always return the address of the new movie to be inserted into end of tree
 }
@@ -432,7 +432,7 @@ Rocket* StarlinerIndustries::fuelDeleteRecursive(Rocket *startRocket, int delete
 	return startRocket;
 }
 
-//deletes node from fuel tree
+//deletes node from capacity tree
 Rocket* StarlinerIndustries::capacityDeleteRecursive(Rocket *startRocket, int deleteCapacity){
 	if(startRocket==NULL)return startRocket; //if tree empty, return null
 	else if(deleteCapacity < startRocket->capacity){ //traverse left and right respectively until found node to be deleted.
@@ -515,6 +515,7 @@ void StarlinerIndustries::nameSearch(std::string searchName){
 }
 
 void StarlinerIndustries::optimizeRocket(int minFuel, int minCapacity){
+	bool found = false;
 	Rocket *foundFuel = NULL;
 	Rocket *foundCapacity = NULL;
 	Rocket *maxFuel = maxRecursive(froot);
@@ -524,12 +525,17 @@ void StarlinerIndustries::optimizeRocket(int minFuel, int minCapacity){
 		for(int j = minCapacity; j<=maxCapacity->capacity; j++){
 			foundCapacity = capacitySearchRecursive(croot,j);
 			if((foundFuel!=NULL) && (foundCapacity!=NULL) && (foundFuel->name == foundCapacity->name)){
+				found = true;
 				break;
 			}
 		}
+		if(found){
+			break;
+		}
+
 	}
 	if((foundFuel!=NULL) && (foundCapacity!=NULL) && (foundFuel->name == foundCapacity->name)){
-		std::cout<<"We recommend the "<<foundFuel->name<<", which has fuel capacity of "<<foundFuel->fuel<<" units"<<" and a passenger capacity of "<< foundFuel->capacity << " people." << std::endl;
+		std::cout<<"We recommend the "<<foundFuel->name<<", which has fuel capacity of "<<foundFuel->fuel<<" units"<<" and a passenger capacity of "<< foundCapacity->capacity << " people." << std::endl;
 	}else{
 		std::cout<<"Sorry, we do not have any rockets with the fuel capacity or passenger capacity that you require."<<std::endl;
 	}
@@ -557,7 +563,7 @@ void StarlinerIndustries::deleteAll(){
 	return fdeleteAllRecursive(froot);
 }
 
-//non user accessible recursive delete ALL function.
+//non user accessible recursive delete ALL function. NO PRINT STATEMENTS
 void StarlinerIndustries::fdeleteAllRecursive(Rocket *startRocket){
 	if(startRocket == NULL){
 		return;
@@ -614,8 +620,8 @@ int main(int argc, char *argv[]){ //allows text file to be passed from the comma
 		std::cout << "5. Count the rockets" << std::endl;
 		std::cout << "6. View map" << std::endl;
 		std::cout << "7. Add planet" << std::endl;
-		std::cout << "8. Find shortest distance" << std::endl;
-		std::cout << "9. Plan Trip" << std::endl;
+		std::cout << "8. Shortest path" << std::endl;
+		std::cout << "9. Plan trip" << std::endl;
 		std::cout << "10. Quit" << std::endl;
 		std::getline(std::cin,choice);
 
