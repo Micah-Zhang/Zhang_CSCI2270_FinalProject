@@ -1,4 +1,4 @@
-SpaceShuttle, 5, 5, 5
+SpaceShuttle, 10, 10, 10
 SaturnV, 4, 4, 4
 AresV, 6, 6, 6
 Mercury, 7, 7, 7
