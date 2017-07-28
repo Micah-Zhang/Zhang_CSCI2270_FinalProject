@@ -45,7 +45,7 @@ class StarlinerIndustries
 		void addEdge(std::string v1, std::string v2, int weight);
 		void addVertex(std::string name);
 		void displayEdges();
-		void Dijkstra(std::string sourceVertex, std::string destinationVertex);
+		int Dijkstra(std::string sourceVertex, std::string destinationVertex);
 		//BSTs
 		void build(std::string filename);
 		void search(std::string searchName);
@@ -133,7 +133,7 @@ void StarlinerIndustries::displayEdges(){
 	}
 }
 
-void StarlinerIndustries::Dijkstra(std::string starting, std::string destination){
+int StarlinerIndustries::Dijkstra(std::string starting, std::string destination){
 	vertex * start = nullptr;
 	vertex * ending = nullptr;
 	//search routine to find starting and destination
@@ -151,11 +151,9 @@ void StarlinerIndustries::Dijkstra(std::string starting, std::string destination
 	if (start != nullptr && ending != nullptr){
 		start->visited = true;
 		start->distance = 0;
-		std::cout<<"pushing "<<start->name<<" into solved"<<std::endl;
 		std::vector<vertex *> solved;
 		std::vector<vertex *> path;
 		solved.push_back(start);
-		//path.push_back(start);
 		adjVertex * v;
 		vertex * u;
 		vertex * minVertex;
@@ -164,55 +162,29 @@ void StarlinerIndustries::Dijkstra(std::string starting, std::string destination
 			int minDistance = INT_MAX;
 			for (int i = 0; i < solved.size(); i++) {
 				u = solved[i];
-				std::cout<<std::endl;
-				std::cout<<"Inspecting route from "<<u->name<<std::endl;
 				for (int j = 0; j < u->adj.size(); j++) {
 					v = &solved[i]->adj[j];
-					std::cout<<"-> to "<<v->v->name;
 					if (v->v->visited == false) {
-						std::cout<<", not yet solved,";
 						int dist = u->distance + v->weight;
 						if (dist < minDistance) {
-							std::cout<<" the minimum distance was "<<minDistance;
 							minDistance = dist;
 							minVertex = v->v;
 							prev = u;
-							std::cout<<" but there is a new minimum distance of "<<dist<<" between "
-							<<start->name <<" and "<<minVertex->name<<std::endl;
-						}else{std::cout<<" the minimum distance is "<<minDistance
-							<<" and there is not a new minimum distance "<<dist<<std::endl;}
-					}else{
-						std::cout<<" already solved, moving on"<<std::endl;
+						}
 					}
 				}
 			}
 			solved.push_back(minVertex);
-			std::cout<<std::endl;
-			std::cout<<"pushing "<<minVertex->name<<" into solved ";
 			minVertex->distance = minDistance;
 			minVertex->previous = prev;
 			minVertex->visited = true;
-			std::cout<<minVertex->name;
-			std::cout<<"(distance: "<<minVertex->distance
-			<<", visited: "<<minVertex->visited
-			<<", parent: "<<minVertex->previous->name<<")"<<std::endl;
-			std::cout<<"destination "<<ending->name<<" solved? "<<ending->visited<<std::endl;
-			std::cout<<std::endl;
 		}
-		std::cout<<"Shortest Path"<<std::endl;
 		vertex * vert = ending;
 		while (vert != nullptr) {
 			path.push_back(vert);
 			vert = vert->previous;
 		}
-		for (int i = 0; i < path.size(); i++) {
-			if (i == path.size()-1)
-				std::cout<<path[path.size()-1-i]->name;
-			else
-				std::cout<<path[path.size()-1-i]->name<<" - ";
-		}
-		std::cout<<std::endl;
-		std::cout<<"Minimum Distance: "<<solved[solved.size()-1]->distance<<std::endl;
+		return solved[solved.size()-1]->distance;
 	}else if (ending!=nullptr){
 		std::cout<<"start not found"<<std::endl;
 		exit(1);
@@ -416,31 +388,31 @@ int main(int argc, char *argv[]){ //allows text file to be passed from the comma
 	StarlinerIndustries myStarlinerIndustries;
 	myStarlinerIndustries.build(filename);
 	myStarlinerIndustries.addVertex("Earth");
-	myStarlinerIndustries.addVertex("Moon");
-	myStarlinerIndustries.addVertex("Mercury");
-	myStarlinerIndustries.addVertex("Venus");
-	myStarlinerIndustries.addVertex("Mars");
-	myStarlinerIndustries.addVertex("Jupiter");
-	myStarlinerIndustries.addVertex("Saturn");
-	myStarlinerIndustries.addVertex("Uranus");
-	myStarlinerIndustries.addVertex("Neptune");
-	myStarlinerIndustries.addEdge("Earth","Moon",2);
-	myStarlinerIndustries.addEdge("Earth","Mercury",10);
-	myStarlinerIndustries.addEdge("Earth","Venus",3);
-	myStarlinerIndustries.addEdge("Moon","Uranus",10);
-	myStarlinerIndustries.addEdge("Moon","Saturn",5);
-	myStarlinerIndustries.addEdge("Moon","Mercury",2);
-	myStarlinerIndustries.addEdge("Mercury","Mars",4);
-	myStarlinerIndustries.addEdge("Mercury","Jupiter",8);
-	myStarlinerIndustries.addEdge("Uranus","Neptune",3);
-	myStarlinerIndustries.addEdge("Saturn","Uranus",2);
-	myStarlinerIndustries.addEdge("Saturn","Mars",2);
-	myStarlinerIndustries.addEdge("Mars","Jupiter",2);
-	myStarlinerIndustries.addEdge("Venus","Jupiter",4);
-	myStarlinerIndustries.addEdge("Jupiter","Neptune",7);
-	myStarlinerIndustries.addEdge("Neptune","Mars",5);
-	myStarlinerIndustries.addEdge("Moon","Uranus",10);
-	myStarlinerIndustries.addEdge("Venus","Mercury",1);
+	myStarlinerIndustries.addVertex("Mustafar");
+	myStarlinerIndustries.addVertex("Kamino");
+	myStarlinerIndustries.addVertex("Solaris");
+	myStarlinerIndustries.addVertex("Cybertron");
+	myStarlinerIndustries.addVertex("Genesis");
+	myStarlinerIndustries.addVertex("Krypton");
+	myStarlinerIndustries.addVertex("Dagobah");
+	myStarlinerIndustries.addVertex("Kronos");
+	myStarlinerIndustries.addEdge("Earth","Mustafar",2);
+	myStarlinerIndustries.addEdge("Earth","Kamino",10);
+	myStarlinerIndustries.addEdge("Earth","Solaris",3);
+	myStarlinerIndustries.addEdge("Mustafar","Dagobah",10);
+	myStarlinerIndustries.addEdge("Mustafar","Krypton",5);
+	myStarlinerIndustries.addEdge("Mustafar","Kamino",2);
+	myStarlinerIndustries.addEdge("Kamino","Cybertron",4);
+	myStarlinerIndustries.addEdge("Kamino","Genesis",8);
+	myStarlinerIndustries.addEdge("Dagobah","Kronos",3);
+	myStarlinerIndustries.addEdge("Krypton","Dagobah",2);
+	myStarlinerIndustries.addEdge("Krypton","Cybertron",2);
+	myStarlinerIndustries.addEdge("Cybertron","Genesis",2);
+	myStarlinerIndustries.addEdge("Solaris","Genesis",4);
+	myStarlinerIndustries.addEdge("Genesis","Kronos",7);
+	myStarlinerIndustries.addEdge("Kronos","Cybertron",5);
+	myStarlinerIndustries.addEdge("Mustafar","Dagobah",10);
+	myStarlinerIndustries.addEdge("Solaris","Mustafar",1);
 	while(true){ //Display menu
 		int newFuel;
 		bool exists = false;
@@ -452,8 +424,9 @@ int main(int argc, char *argv[]){ //allows text file to be passed from the comma
 		std::cout << "4. Delete a rocket" << std::endl;
 		std::cout << "5. Count the rockets" << std::endl;
 		std::cout << "6. View map" << std::endl;
-		std::cout << "7. Add destination" << std::endl;
-		std::cout << "8. Quit" << std::endl;
+		std::cout << "7. Add planet" << std::endl;
+		std::cout << "8. Plan Trip" << std::endl;
+		std::cout << "9. Quit" << std::endl;
 		std::getline(std::cin,choice);
 
 		if(choice=="1"){ //Find a movie
@@ -480,43 +453,32 @@ int main(int argc, char *argv[]){ //allows text file to be passed from the comma
 		else if(choice=="6"){ //View map
 			myStarlinerIndustries.displayEdges();
 		}
-		else if(choice=="7"){
+		else if(choice=="7"){ //Add planet
 			std::cout<<"Enter the name of the new planet:"<<std::endl;
 			std::getline(std::cin,searchName);
-			for(int i = 0; i<vertices.size();i++){
-				if(vertices[i].name == searchName){
-					std::cout<<"This destination already exists."<<std::endl;
-					exists = true;
-					break;
-				}
-			}
-			if(!exists){
-				myStarlinerIndustries.addVertex(searchName);
-				while(true){
-					std::cout<<"Enter the name of planet adjacent to the new planet:"<<std::endl;
-					std::cout<<"(Enter <DONE> if there are no more planets adjacent to the new planet)"<<std::endl;
-					std::getline(std::cin,rentName);
-					if(rentName == "DONE"){
+			myStarlinerIndustries.addVertex(searchName);
+			while(true){
+				std::cout<<"Enter the name of planet adjacent to the new planet:"<<std::endl;
+				std::cout<<"(Enter <DONE> if there are no more planets adjacent to the new planet)"<<std::endl;
+				std::getline(std::cin,rentName);
+				if(rentName == "DONE"){
 						break;
-					}else{
-						for(int i = 0; i<vertices.size();i++){
-							if(vertices[i].name == rentName){
-								exists = true;
-								break;
-							}
-						}
-						if(!exists){
-							std::cout<<"This planet does not exist."
-						}else{
-							std::cout<<"Enter the fuel needed to travel between these two planets:"<<std::endl;
-							std::getline(std::cin,deleteName);
-							newFuel = std::stoi(deleteName);
-							myStarlinerIndustries.addEdge(searchName,rentName,newFuel);
-							std::cout<<"New destination added"<<std::endl;
-						}
-					}
+				}else{
+					std::cout<<"Enter the fuel needed to travel between these two planets:"<<std::endl;
+					std::getline(std::cin,deleteName);
+					newFuel = std::stoi(deleteName);
+					myStarlinerIndustries.addEdge(searchName,rentName,newFuel);
+					std::cout<<"New destination added"<<std::endl;
 				}
 			}
+		}
+		else if(choice=="8"){
+			std::cout<<"Enter starting planet:"<<std::endl;
+			std::getline(std::cin,searchName);
+			std::cout<<"Enter destination planet:"<<std::endl;
+			std::getline(std::cin,rentName);
+			newFuel = myStarlinerIndustries.Dijkstra(searchName,rentName);
+			std::cout << newFuel << std::endl;
 		}
 		else{ //Quit
 			std::cout<<"Goodbye!"<<std::endl;
