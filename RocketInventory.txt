@@ -1,0 +1,6 @@
+SpaceShuttle, 5, 5, 5
+SaturnV, 4, 4, 4
+AresV, 6, 6, 6
+Mercury, 7, 7, 7
+Gemini, 8, 8, 8
+AtlasIII, 3, 3, 3
