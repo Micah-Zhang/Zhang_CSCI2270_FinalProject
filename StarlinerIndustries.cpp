@@ -13,17 +13,21 @@
 #include <vector>
 #include "StarlinerIndustries.hpp"
 
+//must initialize all 3 roots as NULL otherwise insertRecursive fails
 StarlinerIndustries::StarlinerIndustries(){
 	root = NULL;
 	froot = NULL;
 	croot = NULL;
 }
 
+//delete all upon program exiting
 StarlinerIndustries::~StarlinerIndustries(){
 	deleteAll();
 }
 
 //Graphs implementation
+
+//adds vertex to graph. Code taken from Shirly's graphs implementation code on Moodle
 void StarlinerIndustries::addVertex(std::string n){
 	bool found = false;
 	for(int i = 0; i < vertices.size(); i++){
@@ -42,6 +46,7 @@ void StarlinerIndustries::addVertex(std::string n){
 	}
 }
 
+//adds edge to graph. Code taken from Shirly's graphs implementation code on Moodle
 void StarlinerIndustries::addEdge(std::string v1, std::string v2, int weight){
 	for(int i = 0; i < vertices.size(); i++){
 		if(vertices[i].name == v1){
@@ -62,6 +67,7 @@ void StarlinerIndustries::addEdge(std::string v1, std::string v2, int weight){
 }
 
 //loop through all vertices and adjacent vertices
+//Code taken from textbook.
 void StarlinerIndustries::printGraph(){
 	for(int x = 0; x < vertices.size();x++){
 		std::cout<<vertices[x].name<<"-->";
@@ -72,6 +78,7 @@ void StarlinerIndustries::printGraph(){
 	}
 }
 
+//Uses Dijkstra's algorithm to find and print the shortest path between two nodes. Code taken from Shirly's implementation file on Moodle
 int StarlinerIndustries::Dijkstra(std::string starting, std::string destination){
     vertex * start = nullptr;
     vertex * ending = nullptr;
@@ -120,7 +127,7 @@ int StarlinerIndustries::Dijkstra(std::string starting, std::string destination)
         minVertex->previous = prev;
         minVertex->visited = true;
       }
-      std::cout<<"Shortest Path:"<<std::endl;
+      std::cout<<"Shortest Path:"<<std::endl; //display to user shortest path between two planets
       vertex * vert = ending;
       while (vert != nullptr) {
           path.push_back(vert);
@@ -134,7 +141,7 @@ int StarlinerIndustries::Dijkstra(std::string starting, std::string destination)
 
           }
       std::cout<<std::endl;
-      std::cout<<"Minimum Distance: "<<solved[solved.size()-1]->distance<<std::endl;
+      std::cout<<"Minimum Distance: "<<solved[solved.size()-1]->distance<<std::endl; //display minimum distance between 2 planets
       return solved[solved.size()-1]->distance;
   }else if (ending!=nullptr){
     std::cout<<"start not found"<<std::endl;
@@ -149,12 +156,12 @@ int StarlinerIndustries::Dijkstra(std::string starting, std::string destination)
 //user accessible rent function.
 void StarlinerIndustries::rent(std::string rentName){
 	Rocket *rentRocket, *frentRocket, *crentRocket;
-	rentRocket=nameSearchRecursive(root, rentName); //search entire treee for movie to be rented
-	if(rentRocket==NULL){ //if movie not found, say so.
+	rentRocket=nameSearchRecursive(root, rentName); //search entire tree for rocket to be rented
+	if(rentRocket==NULL){ //if rocket not found, say so.
 		std::cout<<"Rocket not found."<<std::endl;
-	}else{ //otherwise, decrement the quantity of the movie and print its updated information
+	}else{ //otherwise, decrement the quantity of the rocket from all three trees and and print its updated information
 		frentRocket = fuelSearchRecursive(froot, rentRocket->fuel);
-		crentRocket = capacitySearchRecursive(croot, rentRocket->capacity);		
+		crentRocket = capacitySearchRecursive(croot, rentRocket->capacity);
 		rentRocket->quantity--;
 		frentRocket->quantity--;
 		crentRocket->quantity--;
@@ -165,7 +172,7 @@ void StarlinerIndustries::rent(std::string rentName){
 		std::cout << "Fuel:" << rentRocket->fuel << std::endl;
 		std::cout << "Capacity:" << rentRocket->capacity << std::endl;
 		std::cout << "Quantity:" << rentRocket->quantity << std::endl;
-		if(rentRocket->quantity==0){ //if the quantity of movie reaches zero, delete it
+		if(rentRocket->quantity==0){ //if the quantity of rocket reaches zero, delete it from all three trees
 			deleteRecursive(root,rentRocket->name);
 			fuelDeleteRecursive(froot, rentRocket->fuel);
 			capacityDeleteRecursive(croot, rentRocket->capacity);
@@ -223,15 +230,16 @@ void StarlinerIndustries::build(std::string filename){
 			newCapacity = std::stoi(nC);
 			newQuantity = std::stoi(nQ);
 			root = insertRecursive(NULL,root,newName,newFuel,newCapacity,newQuantity); //pass root = null to specify new tree
-			froot = fuelInsertRecursive(NULL,froot,newName,newFuel,newCapacity,newQuantity);
+			froot = fuelInsertRecursive(NULL,froot,newName,newFuel,newCapacity,newQuantity); //built three trees, each ordered using a different property of the rocket
 			croot = capacityInsertRecursive(NULL,croot,newName,newFuel,newCapacity,newQuantity);
 		}
 	myfile.close();
 	}else std::cout<<"Unable to open file"<<std::endl;
 }
 
+//recursively insert new rockets into capacity tree
 Rocket* StarlinerIndustries::capacityInsertRecursive(Rocket *tparent, Rocket *troot, std::string newName, int newFuel, int newCapacity, int newQuantity){
-	if(troot==NULL){ //if end of tree is reached, insert new movie
+	if(troot==NULL){ //if end of tree is reached, insert new rocket
 		troot = new Rocket(newName,newFuel,newCapacity,newQuantity,tparent,NULL,NULL);
 	}
 	else if(newCapacity < troot->capacity){ //if newName is alphabetically smaller than current name, traverse left
@@ -243,8 +251,9 @@ Rocket* StarlinerIndustries::capacityInsertRecursive(Rocket *tparent, Rocket *tr
 	return troot; //always return the address of the new movie to be inserted into end of tree
 }
 
+//recursively insert new rockets into fuel tree
 Rocket* StarlinerIndustries::fuelInsertRecursive(Rocket *tparent, Rocket *troot, std::string newName, int newFuel, int newCapacity, int newQuantity){
-	if(troot==NULL){ //if end of tree is reached, insert new movie
+	if(troot==NULL){ //if end of tree is reached, insert new rocket
 		troot = new Rocket(newName,newFuel,newCapacity,newQuantity,tparent,NULL,NULL);
 	}
 	else if(newFuel < troot->fuel){ //if newName is alphabetically smaller than current name, traverse left
@@ -253,10 +262,10 @@ Rocket* StarlinerIndustries::fuelInsertRecursive(Rocket *tparent, Rocket *troot,
 	else{ //if newName is alphabetically larger than the current name, traverse right
 		troot->right=fuelInsertRecursive(troot,troot->right,newName,newFuel,newCapacity,newQuantity);
 	}
-	return troot; //always return the address of the new movie to be inserted into end of tree
+	return troot; //always return the address of the new rocket to be inserted into end of tree
 }
 
-//recursively insert new movies into tree
+//recursively insert new rockets into name tree
 Rocket* StarlinerIndustries::insertRecursive(Rocket *tparent, Rocket *troot, std::string newName, int newFuel, int newCapacity, int newQuantity){
 	if(troot==NULL){ //if end of tree is reached, insert new movie
 		troot = new Rocket(newName,newFuel,newCapacity,newQuantity,tparent,NULL,NULL);
@@ -297,7 +306,7 @@ void StarlinerIndustries::deleteRocket(std::string deleteName){
 }
 
 
-//non user accessible recursive delete function.
+//non user accessible recursive delete function for name tree.
 Rocket* StarlinerIndustries::deleteRecursive(Rocket *startRocket, std::string deleteName){
 	if(startRocket==NULL)return startRocket; //if tree empty, return null
 	else if(deleteName.compare(startRocket->name)<0){ //traverse left and right respectively until found node to be deleted.
@@ -400,7 +409,7 @@ Rocket* StarlinerIndustries::capacityDeleteRecursive(Rocket *startRocket, int de
 }
 
 
-//recursively search tree for string "searchName"
+//recursively search name tree for string "searchName"
 Rocket* StarlinerIndustries::nameSearchRecursive(Rocket *startRocket, std::string searchName){
 	if(startRocket==NULL)return NULL; //if empty BST, return NULL
 	if(startRocket->name==searchName)return startRocket; //if found, return address where found
@@ -410,7 +419,7 @@ Rocket* StarlinerIndustries::nameSearchRecursive(Rocket *startRocket, std::strin
 		return nameSearchRecursive(startRocket->right, searchName); //continue searching right of tree
 }
 
-//recursively search tree for int "searchFuel"
+//recursively search fuel tree for int "searchFuel"
 Rocket* StarlinerIndustries::fuelSearchRecursive(Rocket *startRocket, int searchFuel){
 	if(startRocket==NULL)return NULL; //if empty BST, return NULL
 	if(startRocket->fuel==searchFuel)return startRocket; //if found, return address where found
@@ -420,7 +429,7 @@ Rocket* StarlinerIndustries::fuelSearchRecursive(Rocket *startRocket, int search
 		return fuelSearchRecursive(startRocket->right, searchFuel); //continue searching right of tree
 }
 
-//recursively search tree for int "searchCapacity"
+//recursively search capacity tree for int "searchCapacity"
 Rocket* StarlinerIndustries::capacitySearchRecursive(Rocket *startRocket, int searchCapacity){
 	if(startRocket==NULL)return NULL; //if empty BST, return NULL
 	if(startRocket->capacity==searchCapacity)return startRocket; //if found, return address where found
@@ -431,7 +440,7 @@ Rocket* StarlinerIndustries::capacitySearchRecursive(Rocket *startRocket, int se
 }
 
 
-//recursively search accessible by user. hides access to root.
+//recursively search accessible by user for name tree. hides access to root.
 void StarlinerIndustries::nameSearch(std::string searchName){
 	Rocket *foundRocket;
 	foundRocket = nameSearchRecursive(root, searchName);
@@ -447,17 +456,18 @@ void StarlinerIndustries::nameSearch(std::string searchName){
 	}
 }
 
+//finds the rocket that meets both the minimum fuel and minimum passenger capacity with the least excess
 void StarlinerIndustries::optimizeRocket(int minFuel, int minCapacity){
 	bool found = false;
 	Rocket *foundFuel = NULL;
 	Rocket *foundCapacity = NULL;
-	Rocket *maxFuel = maxRecursive(froot);
-	Rocket *maxCapacity = maxRecursive(croot);
-	for(int i = minFuel; i<=maxFuel->fuel; i++){
-		foundFuel = fuelSearchRecursive(froot,i);
-		for(int j = minCapacity; j<=maxCapacity->capacity; j++){
-			foundCapacity = capacitySearchRecursive(croot,j);
-			if((foundFuel!=NULL) && (foundCapacity!=NULL) && (foundFuel->name == foundCapacity->name)){
+	Rocket *maxFuel = maxRecursive(froot); //find the max fuel
+	Rocket *maxCapacity = maxRecursive(croot); //find the max capacity
+	for(int i = minFuel; i<=maxFuel->fuel; i++){ //iterate through each node in the fuel tree
+		foundFuel = fuelSearchRecursive(froot,i); //search for min fuel
+		for(int j = minCapacity; j<=maxCapacity->capacity; j++){ //iterate through each node in tne capacity tree
+			foundCapacity = capacitySearchRecursive(croot,j); //search for min capacity
+			if((foundFuel!=NULL) && (foundCapacity!=NULL) && (foundFuel->name == foundCapacity->name)){ //keep increase the two mins and iterating until they match up. if so, then both fuel and capacity have been optimized. return.
 				found = true;
 				break;
 			}
@@ -467,9 +477,9 @@ void StarlinerIndustries::optimizeRocket(int minFuel, int minCapacity){
 		}
 
 	}
-	if((foundFuel!=NULL) && (foundCapacity!=NULL) && (foundFuel->name == foundCapacity->name)){
+	if((foundFuel!=NULL) && (foundCapacity!=NULL) && (foundFuel->name == foundCapacity->name)){ //if optimal rocket found, tell user
 		std::cout<<"We recommend the "<<foundFuel->name<<", which has fuel capacity of "<<foundFuel->fuel<<" units"<<" and a passenger capacity of "<< foundCapacity->capacity << " people." << std::endl;
-	}else{
+	}else{ //if optimal rocket not found, tell user
 		std::cout<<"Sorry, we do not have any rockets with the fuel capacity or passenger capacity that you require."<<std::endl;
 	}
 }
@@ -491,7 +501,7 @@ void StarlinerIndustries::deleteAllRecursive(Rocket *startRocket){
 
 //user accessible recursive delete ALL function
 void StarlinerIndustries::deleteAll(){
-	deleteAllRecursive(root);
+	deleteAllRecursive(root); //delete all nodes from all three nodes
 	fdeleteAllRecursive(croot);
 	return fdeleteAllRecursive(froot);
 }

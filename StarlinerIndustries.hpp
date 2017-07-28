@@ -26,7 +26,7 @@ struct vertex{
 };
 
 struct Rocket{
-	std::string name; //stores name of movie
+	std::string name; //stores name of rocket
 	int fuel;
 	int capacity;
 	int quantity;

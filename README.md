@@ -38,6 +38,8 @@ How to Run:
 > This will create an executable file called: "fp".
 > To run the program, enter the following line into the command line: <./fp RocketInventory.txt> 
 > NOTE: You MUST include the name of the text file when executing the program. Otherwise, the program will not run properly.
+> NOTE: Each line in the text file "RocketInventory.txt" follows the format: <name,fuel capacity,passenger capacity, quantity>, with a newline character at the end of every line.
+> Feel free to add to the text file as long as you are aware of the format listed above.
 
 Dependencies:
 --------------
